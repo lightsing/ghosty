@@ -5,7 +5,7 @@ on:
       - '*'
 
 permissions:
-  packages: write
+  contents: write
 
 jobs:
   build:
@@ -30,19 +30,19 @@ jobs:
           name: Artifacts
           path: build/libs/
       - name: run publish
-        run: ./gradlew publish
+        run: ./gradlew publishToSonatype
         env:
-          MAVEN_USERNAME: ${{ env.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ vars.MAVEN_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.MAVEN_PASSWORD }}
       - name: upload to modrinth
         uses: cloudnode-pro/modrinth-publish@v2
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
-          project: esp-ghosty
+          project: OVSgncUB
           version: ${{ github.ref_name }}
           loaders: fabric
           game-versions: 1.21.1
-          files: build/libs/ghosty-${github.ref_name}.jar
+          files: build/libs/ghosty-${{ github.ref_name }}.jar
       - name: upload to github releases
         uses: ncipollo/release-action@v1
         with:
