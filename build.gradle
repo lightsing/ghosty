@@ -80,7 +80,7 @@ publishing {
 
 		maven {
 			name = "GitHubPackages"
-			url = "https://maven.pkg.github.com/lightsing/${project.name}"
+			url = "https://maven.pkg.github.com/lightsing/ghosty"
 			credentials {
 				username = System.getenv("GITHUB_ACTOR")
 				password = System.getenv("GITHUB_TOKEN")
