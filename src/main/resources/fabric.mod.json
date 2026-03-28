@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "ghosty",
+	"version": "${version}",
+	"name": "Ghosty",
+	"description": "An anti-EntityESP mod.",
+	"authors": [
+		"Akase Haruka <light.tsing@gmail.com>"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/ghosty/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"me.lightsing.minecraft.ghosty.Ghosty"
+		]
+	},
+	"mixins": [
+		"ghosty.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

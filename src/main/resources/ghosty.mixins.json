@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "me.lightsing.minecraft.ghosty.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"refmap": "ghosty.refmap.json",
+	"mixins": [
+		"ServerCommonPacketListenerImplMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
