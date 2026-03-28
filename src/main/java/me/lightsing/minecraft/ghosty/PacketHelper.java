@@ -8,10 +8,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class PacketHelper {
+public final class PacketHelper {
     public static void updateEntity(ServerPlayer player, Entity target) {
         if (GhostyConfig.getInstance().isShouldDespawn()) {
             ServerEntity tempServerEntity = new ServerEntity(
@@ -28,7 +29,7 @@ public class PacketHelper {
         player.connection.send(new ClientboundTeleportEntityPacket(target));
         byte headYaw = (byte) ((target.getYHeadRot() * 256.0F) / 360.0F);
         player.connection.send(new ClientboundRotateHeadPacket(target, headYaw));
-        player.connection.send(new ClientboundSetEntityMotionPacket(target));
+        player.connection.send(new ClientboundSetEntityMotionPacket(target.getId(), Vec3.ZERO));
 
         var data = target.getEntityData().getNonDefaultValues();
         if (data != null) {

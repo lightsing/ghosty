@@ -15,7 +15,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class VisibilityChecker {
+public final class VisibilityChecker {
     public static boolean isVisible(ServerPlayer viewer, Entity target, boolean isCurrentlyKnownVisible) {
         if (target == viewer || target.isRemoved()) {
             return true;

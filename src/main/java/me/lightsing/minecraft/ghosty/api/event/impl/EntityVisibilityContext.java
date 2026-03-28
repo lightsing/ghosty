@@ -5,7 +5,7 @@ import me.lightsing.minecraft.ghosty.api.event.EntityVisibilityCheckEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-public class EntityVisibilityContext implements EntityVisibilityCheckEvent {
+public final class EntityVisibilityContext implements EntityVisibilityCheckEvent {
     private final Player viewer;
     private final Entity target;
     private final Visibility.VisibilityResult visibility;

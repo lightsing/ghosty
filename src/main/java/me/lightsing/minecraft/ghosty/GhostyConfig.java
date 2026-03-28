@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-public class GhostyConfig {
+public final class GhostyConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(Ghosty.MOD_ID);
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()

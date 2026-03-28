@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ghosty implements ModInitializer {
+public final class Ghosty implements ModInitializer {
     public static final String MOD_ID = "ghosty";
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class VisibilityManager {
+public final class VisibilityManager {
 
     private static final Map<UUID, Visibility> CACHE = new HashMap<>();
 

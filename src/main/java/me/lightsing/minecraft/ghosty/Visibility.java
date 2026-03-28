@@ -1,8 +1,6 @@
 package me.lightsing.minecraft.ghosty;
 
-import me.lightsing.minecraft.ghosty.api.EntityVisibilityCheckCallback;
 import me.lightsing.minecraft.ghosty.api.EntityVisibilityEvents;
-import me.lightsing.minecraft.ghosty.api.EntityVisibilityPreCheckCallback;
 import me.lightsing.minecraft.ghosty.api.event.impl.EntityVisibilityContext;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -14,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Visibility {
+public final class Visibility {
     private static final Logger LOGGER = LoggerFactory.getLogger(Ghosty.MOD_ID);
     private final Map<Integer, Boolean> entityVisibility = new HashMap<>();
     private final Map<Integer, Vec3> entityLastKnownPositions = new HashMap<>();

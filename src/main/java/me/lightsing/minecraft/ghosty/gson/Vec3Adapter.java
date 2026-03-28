@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 
-public class Vec3Adapter extends TypeAdapter<Vec3> {
+public final class Vec3Adapter extends TypeAdapter<Vec3> {
     @Override
     public void write(JsonWriter out, Vec3 value) throws IOException {
         if (value == null) {
