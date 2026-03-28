@@ -11,11 +11,6 @@ public class VisibilityManager {
 
     private static final Map<UUID, Visibility> CACHE = new HashMap<>();
 
-    private @NotNull Visibility getOrCreateVisibility(@NotNull ServerPlayer player) {
-        UUID uuid = player.getUUID();
-        return CACHE.computeIfAbsent(uuid, k -> new Visibility(player));
-    }
-
     public static Visibility getOrCreate(ServerPlayer player) {
         return CACHE.computeIfAbsent(player.getUUID(), k -> new Visibility(player));
     }
@@ -28,5 +23,10 @@ public class VisibilityManager {
         for (Visibility vis : CACHE.values()) {
             vis.onOtherPlayerLogout(leavingPlayer);
         }
+    }
+
+    private @NotNull Visibility getOrCreateVisibility(@NotNull ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        return CACHE.computeIfAbsent(uuid, k -> new Visibility(player));
     }
 }

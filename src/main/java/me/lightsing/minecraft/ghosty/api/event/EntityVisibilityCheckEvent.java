@@ -9,7 +9,8 @@ public interface EntityVisibilityCheckEvent {
     Entity getTarget();
 
     boolean isVisible();
-    boolean wasPreviouslyKnownVisible();
 
     void setVisible(boolean visible);
+
+    boolean wasPreviouslyKnownVisible();
 }

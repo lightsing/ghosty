@@ -32,12 +32,12 @@ public class EntityVisibilityContext implements EntityVisibilityCheckEvent {
     }
 
     @Override
-    public boolean wasPreviouslyKnownVisible() {
-        return visibility.wasPreviouslyKnownVisible;
+    public void setVisible(boolean visible) {
+        this.visibility.isVisibleNow = visible;
     }
 
     @Override
-    public void setVisible(boolean visible) {
-        this.visibility.isVisibleNow = visible;
+    public boolean wasPreviouslyKnownVisible() {
+        return visibility.wasPreviouslyKnownVisible;
     }
 }

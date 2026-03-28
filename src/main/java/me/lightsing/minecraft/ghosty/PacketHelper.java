@@ -1,10 +1,7 @@
 package me.lightsing.minecraft.ghosty;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -15,15 +12,23 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class PacketHelper {
-    public static void spawnEntity(ServerPlayer player, Entity target) {
-        ServerEntity tempServerEntity = new ServerEntity(
-                player.serverLevel(),
-                target,
-                0,
-                true,
-                (pkt) -> {}
-        );
-        player.connection.send(new ClientboundAddEntityPacket(target, tempServerEntity), null);
+    public static void updateEntity(ServerPlayer player, Entity target) {
+        if (GhostyConfig.getInstance().isShouldDespawn()) {
+            ServerEntity tempServerEntity = new ServerEntity(
+                    player.serverLevel(),
+                    target,
+                    0,
+                    true,
+                    (pkt) -> {
+                    }
+            );
+            player.connection.send(new ClientboundAddEntityPacket(target, tempServerEntity), null);
+        }
+
+        player.connection.send(new ClientboundTeleportEntityPacket(target));
+        byte headYaw = (byte) ((target.getYHeadRot() * 256.0F) / 360.0F);
+        player.connection.send(new ClientboundRotateHeadPacket(target, headYaw));
+        player.connection.send(new ClientboundSetEntityMotionPacket(target));
 
         var data = target.getEntityData().getNonDefaultValues();
         if (data != null) {

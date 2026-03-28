@@ -1,6 +1,7 @@
 package me.lightsing.minecraft.ghosty;
 
 import me.lightsing.minecraft.ghosty.api.EntityVisibilityCheckCallback;
+import me.lightsing.minecraft.ghosty.api.EntityVisibilityEvents;
 import me.lightsing.minecraft.ghosty.api.EntityVisibilityPreCheckCallback;
 import me.lightsing.minecraft.ghosty.api.event.impl.EntityVisibilityContext;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,38 +16,12 @@ import java.util.Map;
 
 public class Visibility {
     private static final Logger LOGGER = LoggerFactory.getLogger(Ghosty.MOD_ID);
-
-    private static final int TICK_THRESHOLD = 5;
-    private static final float YAW_THRESHOLD = 10.0f;
-    private static final float PITCH_THRESHOLD = 10.0f;
-    private static final double POSITION_MOVE_THRESHOLD_SQ = 1.0; // 1 block movement
-
+    private final Map<Integer, Boolean> entityVisibility = new HashMap<>();
+    private final Map<Integer, Vec3> entityLastKnownPositions = new HashMap<>();
     private int lastCheckTick;
     private float lastYaw;
     private float lastPitch;
-
     private int currentRefreshTick = -1;
-
-    private final Map<Integer, Boolean> entityVisibility = new HashMap<>();
-    private final Map<Integer, Vec3> entityLastKnownPositions = new HashMap<>();
-
-    public static class VisibilityResult {
-        public boolean isVisibleNow;
-        public final boolean wasPreviouslyKnownVisible;
-
-        public VisibilityResult(boolean isVisibleNow, boolean wasPreviouslyKnownVisible) {
-            this.isVisibleNow = isVisibleNow;
-            this.wasPreviouslyKnownVisible = wasPreviouslyKnownVisible;
-        }
-
-        public boolean shouldSpawn() {
-            return isVisibleNow && !wasPreviouslyKnownVisible;
-        }
-
-        public boolean shouldDespawn() {
-            return !isVisibleNow && wasPreviouslyKnownVisible;
-        }
-    }
 
     public Visibility(float yaw, float pitch) {
         this.lastYaw = yaw;
@@ -58,7 +33,9 @@ public class Visibility {
     }
 
     public void checkPlayerStateAndRefresh(ServerPlayer player) {
-        if (player.tickCount - lastCheckTick > TICK_THRESHOLD) {
+        GhostyConfig.CacheSettings settings = GhostyConfig.getInstance().cacheSettings();
+
+        if (player.tickCount - lastCheckTick > settings.forceRefreshNTicks()) {
             refreshAll(player);
             return;
         }
@@ -67,7 +44,7 @@ public class Visibility {
         if (yawDiff > 180) yawDiff = 360 - yawDiff;
         float pitchDiff = Math.abs(Math.round(player.getXRot()) - Math.round(lastPitch));
 
-        if (yawDiff > YAW_THRESHOLD || pitchDiff > PITCH_THRESHOLD) {
+        if (yawDiff > settings.byPlayer().yawChangedThreshold() || pitchDiff > settings.byPlayer().pitchChangedThreshold()) {
             refreshAll(player);
         }
     }
@@ -80,28 +57,27 @@ public class Visibility {
 
         Visibility.VisibilityResult result = this.isEntityVisible(player, target);
 
-        if (result.shouldDespawn()) {
-            if (target instanceof ServerPlayer) LOGGER.debug("Entity {} should despawn for player {}, sending despawn packet", entityId, player.getName().getString());
+        if (result.shouldDespawn() && GhostyConfig.getInstance().isShouldDespawn()) {
             PacketHelper.despawnEntity(player, entityId);
             return true;
         }
 
         if (result.shouldSpawn()) {
-            if (target instanceof ServerPlayer) LOGGER.debug("Entity {} should spawn for player {}, sending spawn packet", entityId, player.getName().getString());
-            PacketHelper.spawnEntity(player, target);
+            if (target instanceof ServerPlayer)
+                LOGGER.debug("Entity {} should spawn for player {}, sending spawn packet", entityId, player.getName().getString());
+            PacketHelper.updateEntity(player, target);
             return true;
         }
 
         return !result.isVisibleNow;
     }
 
-
     public VisibilityResult isEntityVisible(ServerPlayer player, Entity target) {
         return isEntityVisible(player, target, true);
     }
 
     public VisibilityResult isEntityVisible(ServerPlayer player, Entity target, boolean initialVisibility) {
-        InteractionResult shouldCheck = EntityVisibilityPreCheckCallback.EVENT.invoker().shouldCheck(player, target);
+        InteractionResult shouldCheck = EntityVisibilityEvents.PRE.invoker().shouldCheck(player, target);
         if (shouldCheck == InteractionResult.FAIL) {
             return new VisibilityResult(true, true);
         }
@@ -118,7 +94,7 @@ public class Visibility {
             entityVisibility.put(target.getId(), currentlyVisible);
             entityLastKnownPositions.put(target.getId(), target.position());
             result = new VisibilityResult(currentlyVisible, isCurrentlyKnownVisible);
-            EntityVisibilityCheckCallback.EVENT.invoker().onCheckVisibility(new EntityVisibilityContext(player, target, result));
+            EntityVisibilityEvents.POST.invoker().onCheckVisibility(new EntityVisibilityContext(player, target, result));
         } else {
             result = new VisibilityResult(isCurrentlyKnownVisible, isCurrentlyKnownVisible);
         }
@@ -160,8 +136,26 @@ public class Visibility {
         if (!visibilityStatus) {
             Vec3 currentPos = target.position();
             double distanceMovedSq = lastPos.distanceToSqr(currentPos);
-            return distanceMovedSq > POSITION_MOVE_THRESHOLD_SQ;
+            return distanceMovedSq > GhostyConfig.getInstance().cacheSettings().byTarget().positionMovedThresholdSq();
         }
         return false;
+    }
+
+    public static class VisibilityResult {
+        public final boolean wasPreviouslyKnownVisible;
+        public boolean isVisibleNow;
+
+        public VisibilityResult(boolean isVisibleNow, boolean wasPreviouslyKnownVisible) {
+            this.isVisibleNow = isVisibleNow;
+            this.wasPreviouslyKnownVisible = wasPreviouslyKnownVisible;
+        }
+
+        public boolean shouldSpawn() {
+            return isVisibleNow && !wasPreviouslyKnownVisible;
+        }
+
+        public boolean shouldDespawn() {
+            return !isVisibleNow && wasPreviouslyKnownVisible;
+        }
     }
 }

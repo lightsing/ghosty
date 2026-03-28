@@ -9,24 +9,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Ghosty implements ModInitializer {
-	public static final String MOD_ID = "ghosty";
+    public static final String MOD_ID = "ghosty";
 
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	@Override
-	public void onInitialize() {
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			ServerPlayer player = handler.getPlayer();
+    @Override
+    public void onInitialize() {
+        GhostyConfig.getInstance(); // load config on startup
 
-			VisibilityManager.cleanup(player);
-			VisibilityManager.notifyOtherPlayersLogout(player);
-		});
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            ServerPlayer player = handler.getPlayer();
 
-		ServerTickEvents.END_SERVER_TICK.register(server -> {
-			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-				Visibility visibility = VisibilityManager.getOrCreate(player);
-				visibility.checkPlayerStateAndRefresh(player);
-			}
-		});
-	}
+            VisibilityManager.cleanup(player);
+            VisibilityManager.notifyOtherPlayersLogout(player);
+        });
+
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                Visibility visibility = VisibilityManager.getOrCreate(player);
+                visibility.checkPlayerStateAndRefresh(player);
+            }
+        });
+    }
 }
